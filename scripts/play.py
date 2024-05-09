@@ -15,9 +15,9 @@ from go1_gym.envs.go1.velocity_tracking import VelocityTrackingEasyEnv
 from tqdm import tqdm
 
 def load_policy(logdir):
-    body = torch.jit.load(logdir + '/checkpoints/body_latest.jit')
+    body = torch.jit.load(logdir + '/checkpoints/body_014800.jit')
     import os
-    adaptation_module = torch.jit.load(logdir + '/checkpoints/adaptation_module_latest.jit')
+    adaptation_module = torch.jit.load(logdir + '/checkpoints/adaptation_module_014800.jit')
 
     def policy(obs, info={}):
         i = 0
@@ -29,9 +29,7 @@ def load_policy(logdir):
     return policy
 
 
-def load_env(label, headless=False):
-    dirs = glob.glob(f"../runs/{label}/*")
-    logdir = sorted(dirs)[0]
+def load_env(logdir, headless=False):   
 
     with open(logdir + "/parameters.pkl", 'rb') as file:
         pkl_cfg = pkl.load(file)
@@ -86,17 +84,21 @@ def load_env(label, headless=False):
     return env, policy
 
 
-def play_go1(headless=True):
+def play_go1(logdir, headless=True):
     from ml_logger import logger
 
     from pathlib import Path
     from go1_gym import MINI_GYM_ROOT_DIR
     import glob
     import os
+    import imageio
 
-    label = "gait-conditioned-agility/pretrain-v0/train"
+    video_dir = logdir + "/video/"
 
-    env, policy = load_env(label, headless=headless)
+    if not os.path.exists(video_dir):
+        os.makedirs(video_dir)
+
+    env, policy = load_env(logdir, headless=headless)
 
     num_eval_steps = 250
     gaits = {"pronking": [0, 0, 0],
@@ -116,8 +118,9 @@ def play_go1(headless=True):
     measured_x_vels = np.zeros(num_eval_steps)
     target_x_vels = np.ones(num_eval_steps) * x_vel_cmd
     joint_positions = np.zeros((num_eval_steps, 12))
-
+    
     obs = env.reset()
+    frames = []
 
     for i in tqdm(range(num_eval_steps)):
         with torch.no_grad():
@@ -134,10 +137,13 @@ def play_go1(headless=True):
         env.commands[:, 11] = roll_cmd
         env.commands[:, 12] = stance_width_cmd
         obs, rew, done, info = env.step(actions)
+        frame = env.render(mode="rgb_array")
+        frames.append(frame)
 
         measured_x_vels[i] = env.base_lin_vel[0, 0]
         joint_positions[i] = env.dof_pos[0, :].cpu()
 
+    imageio.mimsave(video_dir + 'video_014800.gif', frames, format='GIF', duration = 40)
     # plot target and measured forward velocity
     from matplotlib import pyplot as plt
     fig, axs = plt.subplots(2, 1, figsize=(12, 5))
@@ -154,9 +160,11 @@ def play_go1(headless=True):
     axs[1].set_ylabel("Joint Position (rad)")
 
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    
 
 
 if __name__ == '__main__':
     # to see the environment rendering, set headless=False
-    play_go1(headless=False)
+    log_dir = "/home/cheryll/walk-these-ways/runs/gait-conditioned-agility/2024-05-08/train/071537.096152/"
+    play_go1(log_dir, headless=False)

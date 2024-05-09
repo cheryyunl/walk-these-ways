@@ -128,7 +128,7 @@ class Cfg(PrefixProto, cli=False):
         num_ang_vel_bins = 20
         ang_vel_step = 0.3
         distribution_update_extension_distance = 1
-        curriculum_seed = 100
+        curriculum_seed = 620
 
         lin_vel_x = [-1.0, 1.0]  # min max [m/s]
         lin_vel_y = [-1.0, 1.0]  # min max [m/s]

@@ -230,19 +230,19 @@ class Runner:
 
             if it % RunnerArgs.save_interval == 0:
                 with logger.Sync():
-                    logger.torch_save(self.alg.actor_critic.state_dict(), f"checkpoints/ac_weights_{it:06d}.pt")
-                    logger.duplicate(f"checkpoints/ac_weights_{it:06d}.pt", f"checkpoints/ac_weights_last.pt")
+                    # logger.torch_save(self.alg.actor_critic.state_dict(), f"checkpoints/ac_weights_{it:06d}.pt")
+                    # logger.duplicate(f"checkpoints/ac_weights_{it:06d}.pt", f"checkpoints/ac_weights_last.pt")
 
                     path = './tmp/legged_data'
 
                     os.makedirs(path, exist_ok=True)
 
-                    adaptation_module_path = f'{path}/adaptation_module_latest.jit'
+                    adaptation_module_path = f'{path}/adaptation_module_{it:06d}.jit'
                     adaptation_module = copy.deepcopy(self.alg.actor_critic.adaptation_module).to('cpu')
                     traced_script_adaptation_module = torch.jit.script(adaptation_module)
                     traced_script_adaptation_module.save(adaptation_module_path)
 
-                    body_path = f'{path}/body_latest.jit'
+                    body_path = f'{path}/body_{it:06d}.jit'
                     body_model = copy.deepcopy(self.alg.actor_critic.actor_body).to('cpu')
                     traced_script_body_module = torch.jit.script(body_model)
                     traced_script_body_module.save(body_path)
@@ -253,8 +253,8 @@ class Runner:
             self.current_learning_iteration += num_learning_iterations
 
         with logger.Sync():
-            logger.torch_save(self.alg.actor_critic.state_dict(), f"checkpoints/ac_weights_{it:06d}.pt")
-            logger.duplicate(f"checkpoints/ac_weights_{it:06d}.pt", f"checkpoints/ac_weights_last.pt")
+            logger.torch_save(self.alg.actor_critic.state_dict(), f"checkpoints/ac_weights_last.pt")
+            # logger.duplicate(f"checkpoints/ac_weights_{it:06d}.pt", f"checkpoints/ac_weights_last.pt")
 
             path = './tmp/legged_data'
 

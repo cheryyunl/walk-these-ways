@@ -70,7 +70,7 @@ def load_policy(logdir):
 
 
 if __name__ == '__main__':
-    label = "gait-conditioned-agility/pretrain-v0/train"
+    label = "gait-conditioned-agility/generate/train"
 
     experiment_name = "example_experiment"
 

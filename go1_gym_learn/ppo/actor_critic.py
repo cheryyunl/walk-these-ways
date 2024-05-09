@@ -13,7 +13,7 @@ class AC_Args(PrefixProto, cli=False):
     critic_hidden_dims = [512, 256, 128]
     activation = 'elu'  # can be elu, relu, selu, crelu, lrelu, tanh, sigmoid
 
-    adaptation_module_branch_hidden_dims = [[256, 32]]
+    adaptation_module_branch_hidden_dims = [[128, 32]]
 
     env_factor_encoder_branch_input_dims = [18]
     env_factor_encoder_branch_latent_dims = [18]
