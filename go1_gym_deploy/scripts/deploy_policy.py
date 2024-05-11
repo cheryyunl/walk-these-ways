@@ -12,11 +12,7 @@ import pathlib
 
 lc = lcm.LCM("udpm://239.255.76.67:7667?ttl=255")
 
-def load_and_run_policy(label, experiment_name, max_vel=1.0, max_yaw_vel=1.0):
-    # load agent
-    dirs = glob.glob(f"../../runs/{label}/*")
-    logdir = sorted(dirs)[0]
-
+def load_and_run_policy(logdir, experiment_name, max_vel=1.0, max_yaw_vel=1.0):
     with open(logdir+"/parameters.pkl", 'rb') as file:
         pkl_cfg = pkl.load(file)
         print(pkl_cfg.keys())
@@ -55,9 +51,9 @@ def load_and_run_policy(label, experiment_name, max_vel=1.0, max_yaw_vel=1.0):
     deployment_runner.run(max_steps=max_steps, logging=True)
 
 def load_policy(logdir):
-    body = torch.jit.load(logdir + '/checkpoints/body_latest.jit')
+    body = torch.jit.load(logdir + '/checkpoints/body_050000.jit')
     import os
-    adaptation_module = torch.jit.load(logdir + '/checkpoints/adaptation_module_latest.jit')
+    adaptation_module = torch.jit.load(logdir + '/checkpoints/adaptation_module_050000.jit')
 
     def policy(obs, info):
         i = 0
@@ -70,7 +66,7 @@ def load_policy(logdir):
 
 
 if __name__ == '__main__':
-    label = "gait-conditioned-agility/pretrain-v0/train"
+    logdir = "gait-conditioned-agility/generate/"
 
     experiment_name = "example_experiment"
 
